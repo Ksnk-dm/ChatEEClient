@@ -47,7 +47,6 @@ public class Utils {
         try {
             URL obj = new URL(Utils.getURL() + "/alluser");
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
-            int res = conn.getResponseCode();
             String messageFromServer = getMessageFromServer(conn);
             System.out.println(messageFromServer);
         } catch (Exception e) {
@@ -125,6 +124,7 @@ public class Utils {
         do {
             r = is.read(buf);
             if (r > 0) bos.write(buf, 0, r);
+            bos.close();
         } while (r != -1);
 
         return bos.toByteArray();
