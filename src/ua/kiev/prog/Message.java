@@ -51,7 +51,6 @@ public class Message {
 	public int send(String url) throws IOException {
 		URL obj = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
-
 		conn.setRequestMethod("POST");
 		conn.setDoOutput(true);
 

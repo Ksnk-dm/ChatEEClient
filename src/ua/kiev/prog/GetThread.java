@@ -34,8 +34,8 @@ public class GetThread implements Runnable {
                     JsonMessages list = gson.fromJson(strBuf, JsonMessages.class);
                     if (list != null) {
                         for (Message m : list.getList()) {
-                            if (m.getFrom().equals(Main.login) || m.getTo().equals(Main.login)
-                                    || m.getTo().equals(Main.room) || m.getFrom().equals("system")) {
+                            if (m.getFrom().equals(ActiveUser.getLogin()) || m.getTo().equals(ActiveUser.getLogin())
+                                    || m.getTo().equals(ActiveUser.getRoom()) || m.getFrom().equals("system")) {
                                 System.out.println(m);
                             }
                             n++;

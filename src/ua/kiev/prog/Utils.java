@@ -6,12 +6,12 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Utils {
     private static final String URL = "http://127.0.0.1";
     private static final int PORT = 8080;
+
 
     public static String getURL() {
         return URL + ":" + PORT;
@@ -21,15 +21,15 @@ public class Utils {
         return message;
     }
 
+
     private static void sendMessage(String message, String to, boolean isService) {
         String body = message;
-        String from = Main.login;
+        String from = ActiveUser.getLogin();
         if (!isService) {
             body = bodyMes(message);
         } else {
             from = "system";
         }
-
         Message m = new Message(from, to, body, isService);
         try {
             int res = m.send(Utils.getURL() + "/add");
@@ -59,20 +59,20 @@ public class Utils {
         InputStream is = conn.getInputStream();
         byte[] buf = requestBodyToArray(is);
         String strBuf = new String(buf, StandardCharsets.UTF_8);
+        is.close();
         return strBuf;
     }
 
     private static void login(String login, String pass) {
-
         try {
             URL obj = new URL(Utils.getURL() + "/login?login=" + login + "&password=" + pass);
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
             int res = conn.getResponseCode();
             if (res == 200) {
-                Main.login = login;
-                Main.room = "main";
-                Main.status = "online";
-                System.out.println("Добро пожаловать " + Main.login);
+                ActiveUser.setLogin(login);
+                ActiveUser.setRoom("main");
+                ActiveUser.setStatus("online");
+                System.out.println("Добро пожаловать " + ActiveUser.getLogin());
             } else {
                 String messageFromServer = getMessageFromServer(conn);
                 System.out.println(messageFromServer);
@@ -85,7 +85,7 @@ public class Utils {
     private static void logout() {
         boolean success = false;
         try {
-            URL obj = new URL(Utils.getURL() + "/logout?login=" + Main.login);
+            URL obj = new URL(Utils.getURL() + "/logout?login=" + ActiveUser.getLogin());
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
             int res = conn.getResponseCode();
             if (res == 200) {
@@ -98,15 +98,15 @@ public class Utils {
             e.printStackTrace();
         }
         if (success) {
-            String mes = Main.login + " вышел";
-            Main.login = "";
+            String mes = ActiveUser.getLogin() + " вышел";
+            ActiveUser.setLogin("");
+            ActiveUser.setRoom("");
             System.out.println(mes);
 
         }
     }
 
     private static void registration(String login, String pass) {
-
         try {
             URL obj = new URL(Utils.getURL() + "/reg?login=" + login + "&password=" + pass);
             HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
@@ -150,7 +150,7 @@ public static void help(){
     }
 
 
-    public static void menu(Scanner scanner) {
+    public static void menu(Scanner scanner) throws NullPointerException {
         while (true) {
             help();
             String text = scanner.nextLine();
@@ -172,14 +172,14 @@ public static void help(){
                 continue;
             }
             if (text.equals("3")) {
-                sendMessage(Main.login + " вошел в главный чат", "system", true);
+                sendMessage(ActiveUser.getLogin() + " вошел в главный чат", "system", true);
                 mesUser(scanner);
             }
             if (text.equals("5")) {
                 logout();
             }
             if (text.equals("4")) {
-                if (Main.login.isEmpty()) {
+                if (ActiveUser.getLogin().equals("null")) {
                     System.out.println("Пройдите авторизацию или регистрацию");
                 } else {
                     allUsers();
@@ -189,8 +189,8 @@ public static void help(){
     }
 
 
-    private static void mesUser(Scanner scanner) {
-        if (Main.login.isEmpty()) {
+    private static void mesUser(Scanner scanner) throws NullPointerException  {
+        if (ActiveUser.getLogin().equals("null")) {
             System.out.println("Пройдите авторизацию или регистрацию");
         } else {
             helpChat();
@@ -210,7 +210,7 @@ public static void help(){
                             : mes.substring(mes.indexOf("@") + 1);
                     Utils.sendMessage(mes, to, false);
                 } else {
-                    Utils.sendMessage(mes, Main.room, false);
+                    Utils.sendMessage(mes, ActiveUser.getRoom(), false);
                 }
             }
 
