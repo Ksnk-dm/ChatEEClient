@@ -62,7 +62,8 @@ public class GetThread implements Runnable {
             r = is.read(buf);
             if (r > 0) bos.write(buf, 0, r);
         } while (r != -1);
-
+        bos.close();
+        is.close();
         return bos.toByteArray();
     }
 }
